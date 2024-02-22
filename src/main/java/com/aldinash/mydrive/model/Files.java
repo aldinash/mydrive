@@ -1,5 +1,8 @@
 package com.aldinash.mydrive.model;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class Files {
     private int fileid;
     private String filename;
