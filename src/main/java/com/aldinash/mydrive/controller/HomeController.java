@@ -1,6 +1,7 @@
 package com.aldinash.mydrive.controller;
 
 
+import com.aldinash.mydrive.model.User;
 import com.aldinash.mydrive.service.FilesService;
 import com.aldinash.mydrive.service.NoteService;
 import com.aldinash.mydrive.service.UserService;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/home")
@@ -26,12 +28,12 @@ public class HomeController {
 
     // resolve gandezh
     @GetMapping()
-    public String home(Authentication authentication, Model model) throws Exception {
+    public ModelAndView getHomePage(Authentication authentication) throws  Exception {
         String username = authentication.getName();
-        model.addAttribute("notes", noteService.getAllNotes(userService.
-                getUser(username).getUserId()));
-        model.addAttribute("files", filesService.getAllFiles(userService.
-                getUser(username).getUserId()));
-        return "home";
+        User user = userService.getUser(username);
+        ModelAndView modelAndView = new ModelAndView("home");
+        modelAndView.addObject("notes", noteService.getAllNotes(user.getUserId()));
+        modelAndView.addObject("files", filesService.getAllFiles(user.getUserId()));
+        return modelAndView;
     }
 }

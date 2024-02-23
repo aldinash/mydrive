@@ -3,25 +3,27 @@ package com.aldinash.mydrive.service;
 import com.aldinash.mydrive.mapper.FilesMapper;
 import com.aldinash.mydrive.model.Files;
 import com.aldinash.mydrive.model.ResponseFile;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FilesService {
 
-    @Autowired
-    private FilesMapper filesMapper;
+    private final FilesMapper filesMapper;
+
+    public FilesService(FilesMapper filesMapper) {
+        this.filesMapper = filesMapper;
+    }
 
     public ResponseFile getResponseFile(Files file) {
         String base64 = Base64.getEncoder().encodeToString(file.getFiledata());
         String dataURL = "data:" + file.getContenttype() + ";base64," + base64;
-        return ResponseFile.builder().fileid(file.getFileid()).filename(file.getFilename()).dataURL(dataURL).build();
+        return new ResponseFile(file.getFileid(), file.getFilename(), dataURL);
     }
 
     public List<ResponseFile> getAllFiles(int userid) throws Exception {
@@ -29,7 +31,12 @@ public class FilesService {
         if (files == null) {
             throw new Exception();
         }
-        return files.stream().map(this::getResponseFile).collect(Collectors.toList());
+        List<ResponseFile> responseFiles = new ArrayList<>();
+        for (Files file : files) {
+            ResponseFile responseFile = getResponseFile(file);
+            responseFiles.add(responseFile);
+        }
+        return responseFiles;
     }
 
     public void addFile(MultipartFile fileUpload, int userid) throws IOException {
